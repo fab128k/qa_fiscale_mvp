@@ -111,9 +111,9 @@ pytest tests/ -v
 4. **Full Version**: Target 5,000+ Q&A
 
 ## 📞 Supporto
-- **Issues**: [GitHub Issues](https://github.com/[USERNAME]/qa_fiscale_mvp/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/[USERNAME]/qa_fiscale_mvp/discussions)
-- **Wiki**: [Project Wiki](https://github.com/[USERNAME]/qa_fiscale_mvp/wiki)
+- **Issues**: [GitHub Issues](https://github.com/fab128k/qa_fiscale_mvp/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/fab128k/qa_fiscale_mvp/discussions)
+- **Wiki**: [Project Wiki](https://github.com/fab128k/qa_fiscale_mvp/wiki)
 
 ## 🤝 Contribuire
 Contribuzioni benvenute! Per favore leggi la [guida ai contributi](CONTRIBUTING.md) prima di inviare una Pull Request.

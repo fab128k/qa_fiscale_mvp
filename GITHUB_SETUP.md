@@ -25,8 +25,8 @@ git add .
 # Primo commit
 git commit -m "Initial commit: MVP project structure"
 
-# Aggiungi l'origin remote (sostituisci USERNAME con il tuo username GitHub)
-git remote add origin https://github.com/USERNAME/qa_fiscale_mvp.git
+# Aggiungi l'origin remote
+git remote add origin https://github.com/fab128k/qa_fiscale_mvp.git
 
 # Push del codice
 git push -u origin main
@@ -50,7 +50,7 @@ git push -u origin main
 
 ### 4. Aggiorna i link nel README
 
-Dopo aver creato il repository, sostituisci `[USERNAME]` nel README.md con il tuo username GitHub.
+I link GitHub sono già configurati per l'username `fab128k`.
 
 ### 5. Prima release
 
