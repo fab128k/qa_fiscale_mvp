@@ -1,0 +1,174 @@
+# Configurazione fonti dati per MVP Q&A Fiscale
+# Versione: 1.0
+# Target: 200 Q&A totali
+
+general:
+  output_path: "data/output/qa_fiscale_mvp_v1.csv"
+  encoding: "utf-8"
+  csv_delimiter: ","
+  log_level: "INFO"
+  
+# Configurazione per ogni fonte dati
+sources:
+  # INPS - API pubblica con FAQ strutturate
+  inps:
+    enabled: true
+    type: api
+    priority: 1
+    target_records: 60
+    reliability_score: 10
+    config:
+      base_url: "https://serviziweb2.inps.it/odapi"
+      endpoints:
+        - path: "/faq/pensioni"
+          category: "PREVIDENZA"
+          subcategory: "Pensioni"
+          max_items: 20
+        - path: "/faq/contributi"
+          category: "PREVIDENZA" 
+          subcategory: "Contributi"
+          max_items: 20
+        - path: "/faq/prestazioni"
+          category: "PREVIDENZA"
+          subcategory: "Prestazioni"
+          max_items: 20
+      headers:
+        Accept: "application/json"
+        User-Agent: "QA-Fiscale-MVP/1.0 (Educational Purpose)"
+      rate_limit: 1  # secondi tra richieste
+      timeout: 30
+    
+  # Agenzia delle Entrate - FAQ web scraping
+  agenzia_entrate:
+    enabled: true
+    type: web
+    priority: 2
+    target_records: 50
+    reliability_score: 10
+    config:
+      categories:
+        - name: "irpef_detrazioni"
+          url: "https://www.agenziaentrate.gov.it/portale/web/guest/normativa-e-prassi/faq"
+          category: "FISCO_NAZIONALE"
+          subcategory: "IRPEF"
+          target: 15
+          selectors:
+            container: "div.faq-container"
+            question: "h3.faq-question"
+            answer: "div.faq-answer"
+        - name: "iva_base"
+          url: "https://www.agenziaentrate.gov.it/portale/web/guest/normativa-e-prassi/faq"
+          category: "FISCO_NAZIONALE"
+          subcategory: "IVA"
+          target: 20
+        - name: "regime_forfettario"
+          url: "https://www.agenziaentrate.gov.it/portale/web/guest/normativa-e-prassi/faq"
+          category: "REGIME_SPECIALI"
+          subcategory: "Forfettario"
+          target: 15
+      parser: "beautifulsoup"
+      wait_time: 2  # secondi tra pagine
+      
+  # Interpelli Agenzia Entrate - PDF processing
+  interpelli:
+    enabled: true
+    type: pdf
+    priority: 3
+    target_records: 40
+    reliability_score: 10
+    config:
+      base_url: "https://www.agenziaentrate.gov.it/portale/web/guest/normativa-e-prassi/interpelli"
+      category: "INTERPELLI"
+      year_filter: [2024, 2025]
+      max_files: 40
+      patterns:
+        numero: 'Interpello n\. (\d+)'
+        data: 'del (\d{1,2}[/-]\d{1,2}[/-]\d{4})'
+        quesito: 'QUESITO\s*\n+([\s\S]*?)(?=SOLUZIONE)'
+        soluzione: 'SOLUZIONE\s*\n+([\s\S]*?)(?=\n\n|$)'
+      
+  # CNDCEC - Informative professionali  
+  cndcec:
+    enabled: true
+    type: pdf
+    priority: 4
+    target_records: 30
+    reliability_score: 8
+    config:
+      source_url: "https://www.commercialisti.it/informative"
+      category: "DIRITTO_COMMERCIALE"
+      document_type: "informative"
+      year_filter: [2024, 2025]
+      max_documents: 30
+      
+  # Forum Fiscoetasse - Selezione manuale top content
+  forum:
+    enabled: true
+    type: manual
+    priority: 5
+    target_records: 20
+    reliability_score: 5
+    config:
+      base_url: "https://www.fiscoetasse.com/forum/"
+      categories:
+        - "IRPEF e IRES"
+        - "IVA"
+        - "Regime Forfettario"
+      selection_criteria:
+        min_views: 1000
+        min_replies: 5
+        has_accepted_answer: true
+        date_after: "2023-01-01"
+
+# Regole di validazione
+validation:
+  required_fields:
+    - domanda
+    - risposta
+    - categoria
+    - fonte
+    - data_pubblicazione
+  
+  field_constraints:
+    domanda:
+      min_length: 20
+      max_length: 500
+    risposta:
+      min_length: 100
+      max_length: 5000
+    categoria:
+      allowed_values:
+        - FISCO_NAZIONALE
+        - FISCO_LOCALE
+        - REGIME_SPECIALI
+        - DIRITTO_COMMERCIALE
+        - PREVIDENZA
+        - INTERPELLI
+    livello_affidabilita:
+      min: 1
+      max: 10
+      
+# Configurazione controllo qualità
+quality:
+  min_score: 5
+  target_avg_score: 7.5
+  sampling_rate: 0.1  # 10% per controllo manuale
+  
+  scoring_weights:
+    length_appropriateness: 0.3
+    normative_references: 0.2
+    source_reliability: 0.3
+    recency: 0.2
+    
+# Configurazione export
+export:
+  csv_options:
+    index: false
+    encoding: "utf-8-sig"  # Per compatibilità Excel
+    quoting: "minimal"
+    escape_char: "\\"
+  
+  metadata:
+    version: "1.0"
+    created_by: "QA Fiscale MVP Script"
+    license: "Internal Use Only"
